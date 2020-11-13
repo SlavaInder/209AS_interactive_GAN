@@ -6,23 +6,88 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
-    <h1>Interactive Data Generator</h1>
-    <form action="" method="post">
-        <p>
-            Input Data
-            <input type="text" name="input_data"/>
-            <input type="button" value="Load">
-        </p>
+    <div name="header_div">
+        <h1>Interactive Data Generator</h1>
+    </div>
 
-        <p>
-            Input Data
-            <input type="text" name="input_data"/>
-            <input type="button" value="Load">
-        </p>
-    </form>
-    {{ the_div|safe }}
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>
-    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.2.3.min.js"></script>
-    {{ the_script|safe }}
+
+    <div name="main_div">
+
+
+        <div name="generator_div">
+            <div name="load_data_div">
+                <form name="load_data_form" action="" method="post">
+                    <p>
+                        Load Data
+                        <input type="text" name="input_data_location"/>
+                        <input type="button" value="load">
+                    </p>
+                </form>
+            </div>
+
+            <div name="generate_data_div">
+                <form name="generate_data_form" action="" method="post">
+                    <p>
+                        <input type="button" value="generate">
+                    </p>
+                </form>
+            </div>
+
+            <div name="save_data_div">
+                <form name="save_data_form" action="" method="post">
+                    <p>
+                        Save Data
+                        <input type="text" name="save_data_location"/>
+                        <input type="button" value="save">
+                    </p>
+                </form>
+            </div>
+        </div>
+
+
+        <div name="Imputation">
+            <div name="range_div">
+                <form name="range_form" action="" method="post">
+                    <p>
+                        Set Range
+                        <input type="text" name="range"/>
+                        <input type="button" value="set">
+                    </p>
+                </form>
+            </div>
+
+            <div name="reference_points_div">
+                <form name="reference_points_form" action="" method="post">
+                    <p>
+                        Set Reference Points
+                        <input type="text" name="reference_points"/>
+                        <input type="button" value="set">
+                    </p>
+                </form>
+            </div>
+
+            <div name="impute_section_div">
+                <form name="impute_section_form" action="" method="post">
+                    <p>
+                        <input type="button" value="impute">
+                    </p>
+                </form>
+            </div>
+        </div>
+
+        <div name="plot_div">
+            <div name="selector_div">
+                <form name="selector_form" action="" method="post">
+                    <input type="radio" name="source" value="original" checked="true"> Original
+                    <input type="radio" name="source" value="synthesized"> Synthesized
+                </form>
+            </div>
+
+        {{ the_div|safe }}
+        <script src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>
+        <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.2.3.min.js"></script>
+        {{ the_script|safe }}
+        </div>
+    </div>
 </body>
 </html>
