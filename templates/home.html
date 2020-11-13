@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bar charts with Bokeh!</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+</head>
+<body>
+    <h1>Interactive Data Generator</h1>
+    <form action="" method="post">
+        <p>
+            Input Data
+            <input type="text" name="input_data"/>
+            <input type="button" value="Load">
+        </p>
+
+        <p>
+            Input Data
+            <input type="text" name="input_data"/>
+            <input type="button" value="Load">
+        </p>
+    </form>
+    {{ the_div|safe }}
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>
+    <script src="http://cdn.pydata.org/bokeh/release/bokeh-widgets-2.2.3.min.js"></script>
+    {{ the_script|safe }}
+</body>
+</html>
