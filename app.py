@@ -13,7 +13,9 @@
 # code sources using partly in this project
 # https://www.fullstackpython.com/blog/responsive-bar-charts-bokeh-flask-python-3.html
 
-from flask import Flask, render_template
+import igan
+
+from flask import Flask, render_template, request
 import random
 
 from bokeh.models import HoverTool
@@ -24,23 +26,21 @@ from bokeh.embed import components
 app = Flask(__name__)
 
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST', 'DELETE'])
 def main_window():
-    bars_count = 6
-    if bars_count <= 0:
-        bars_count = 1
+    load_file_name = ""
 
-    data = {"days": [], "bugs": [], "costs": []}
-    for i in range(1, bars_count + 1):
-        data['days'].append(i)
-        data['bugs'].append(random.randint(1,100))
-        data['costs'].append(random.uniform(1.00, 1000.00))
+    if request.method == 'POST':
+        # handle_post_request()
+        # load_handler.handle(request.method)
+        load_file_name = "request2"
+
 
     hover = create_hover_tool()
     plot = create_bar_chart(hover)
     script, div = components(plot)
 
-    return render_template("home.html",
+    return render_template("home.html", load_file=load_file_name,
                            the_div=div, the_script=script)
 
 
@@ -81,5 +81,18 @@ def create_bar_chart(hover_tool=None):
     return p
 
 
+
+# this function handles interactions with all forms
+def handle_post_request():
+    pass
+
+
 if __name__ == "__main__":
+    # the array with the original data
+    original_array = None
+
+    # init handlers
+    load_handler = igan.LoadDataFormHandler(original_array, "load_data_form")
+
+
     app.run(debug=True)
