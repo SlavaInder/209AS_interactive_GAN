@@ -23,25 +23,34 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 
 
+# set a flask instance
 app = Flask(__name__)
+app.secret_key = 'some secret key'
+
+# the array with the original data
+original_array = None
+
+# init handlers
+load_handler = igan.LoadDataFormHandler(original_array, "load_file")
+
+# init handler manager
+manager = igan.HandlerManager([load_handler])
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def main_window():
-    load_file_name = ""
 
     if request.method == 'POST':
-        # handle_post_request()
-        # load_handler.handle(request.method)
-        load_file_name = "request2"
-
+        print(request.form)
+        manager.handle(request)
 
     hover = create_hover_tool()
     plot = create_bar_chart(hover)
     script, div = components(plot)
 
-    return render_template("home.html", load_file=load_file_name,
-                           the_div=div, the_script=script)
+    return render_template("home.html",
+                           the_div=div,
+                           the_script=script)
 
 
 def create_hover_tool():
@@ -81,18 +90,5 @@ def create_bar_chart(hover_tool=None):
     return p
 
 
-
-# this function handles interactions with all forms
-def handle_post_request():
-    pass
-
-
 if __name__ == "__main__":
-    # the array with the original data
-    original_array = None
-
-    # init handlers
-    load_handler = igan.LoadDataFormHandler(original_array, "load_data_form")
-
-
     app.run(debug=True)
