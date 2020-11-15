@@ -148,4 +148,7 @@ def create_chart():
         p.add_tools(draw_tool)
         p.add_tools(BoxSelectTool(dimensions="width"))
 
+        print(added_points_source.selected)
     return p
+
+
