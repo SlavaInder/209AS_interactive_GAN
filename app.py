@@ -52,6 +52,7 @@ ui = {"original_select": "select-button",
 def main_window():
 
     if request.method == 'POST':
+        print(request.json)
         # prepare data pack for messages
         data_pack = {'data_dict': data}
         # get updates from the manager
@@ -148,7 +149,38 @@ def create_chart():
         p.add_tools(draw_tool)
         p.add_tools(BoxSelectTool(dimensions="width"))
 
+        # set up a function that will send an asynchronous post request
+        selection_callback = CustomJS(args=dict(source=source), code="""
+        // copy selected indices
+        var inds = cb_obj.indices;
+        // copy data
+        var d = source.data;
+        // send data
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://127.0.0.1:5000/", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify({
+            start: d['gen_x'][inds[0]],
+            end: d['gen_x'][inds[inds.length-1]]
+        }));
+        console.log(xhr.response);
+        console.log("!!!!!");
+        """)
+
+        add_point_callback = CustomJS(args={}, code="""
+        // copy data
+        var d = cb_obj.data;
+        // send data
+        var xhr = new XMLHttpRequest();
+        xhr.open("POST", "http://127.0.0.1:5000/", true);
+        xhr.setRequestHeader('Content-Type', 'application/json');
+        xhr.send(JSON.stringify(d));
+        console.log(xhr.response);
+        console.log("???");
+        """)
+
+        source.selected.js_on_change('indices', selection_callback)
+        added_points_source.js_on_change("data", add_point_callback)
+
         print(added_points_source.selected)
     return p
-
-
