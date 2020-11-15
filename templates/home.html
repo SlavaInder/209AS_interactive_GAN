@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Bar charts with Bokeh!</title>
+    <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
 <body>
@@ -33,7 +33,7 @@
             </div>
 
             <div name="save_data_div">
-                <form name="save_data_form" action="" method="post">
+                <form name="save_data_form" action="/generated_data.csv" method="post">
                     <p>
                         <input type="submit" class="generic-button" value="save">
                     </p>
@@ -73,8 +73,8 @@
         <div name="plot_div">
             <div name="selector_div">
                 <form name="selector_form" action="" method="post">
-                        <input type="submit" class= {{ UI.original_select }} name="original_select" value="original">
-                        <input type="submit" class= {{ UI.synthesized_select }} name="synthesized_select" value="synthesized">
+                        <input type="submit" class= {{ UI.original_select }} name="submit_button" value="original">
+                        <input type="submit" class= {{ UI.synthesized_select }} name="submit_button" value="synthesized">
                 </form>
             </div>
 

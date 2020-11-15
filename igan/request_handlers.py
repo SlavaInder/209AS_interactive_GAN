@@ -45,6 +45,40 @@ class FormHandler(object):
         return updates
 
 
+# class to handle switch buttons
+class SwitchToGenHandler(FormHandler):
+    # button_name - name of the button used for form submission
+    def __init__(self, button_name):
+        # save the name of the form this handler is connected to
+        self.button_name = button_name
+
+    # switch to original
+    def handle(self, request, data_pack):
+        # handle only in case load button is pressed and there is a button
+        if self.button_name in request.form and request.form["submit_button"] == "synthesized":
+            updates = {"change_to_gen": True}
+            return updates
+        else:
+            return {}
+
+
+# class to handle switch buttons
+class SwitchToOriginalHandler(FormHandler):
+    # button_name - name of the button used for form submission
+    def __init__(self, button_name):
+        # save the name of the form this handler is connected to
+        self.button_name = button_name
+
+    # switch to original
+    def handle(self, request, data_pack):
+        # handle only in case load button is pressed and there is a button
+        if self.button_name in request.form and request.form["submit_button"] == "original":
+            updates = {"change_to_orig": True}
+            return updates
+        else:
+            return {}
+
+
 # class to handle data generation
 class GenerateDataFormHandler(FormHandler):
     # button_name - name of the button used for form submission
@@ -97,7 +131,8 @@ class LoadDataFormHandler(FormHandler):
                     if file.filename.rsplit('.', 1)[1].lower() == "mat":
                         original_data = scipy.io.loadmat(file.stream)
                         updates = {"orig_data_vals": (ecg_mat_to_np_converter(original_data))[0],
-                                   "orig_data_timestamps": (ecg_mat_to_np_converter(original_data))[1]}
+                                   "orig_data_timestamps": (ecg_mat_to_np_converter(original_data))[1],
+                                   "change_to_orig": True}
                         return updates
                     else:
                         return {}
