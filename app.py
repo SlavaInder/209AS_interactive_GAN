@@ -34,25 +34,30 @@ load_handler = igan.LoadDataFormHandler("load_data_button", "input_file")
 generator_handler = igan.GenerateDataFormHandler("generate_data_button")
 switch_orig_handler = igan.SwitchToOriginalHandler("submit_button")
 switch_gen_handler = igan.SwitchToGenHandler("submit_button")
+json_handler = igan.JSONHandler()
 
 # init handler manager
 manager = igan.HandlerManager([load_handler,
                                generator_handler,
                                switch_orig_handler,
-                               switch_gen_handler])
+                               switch_gen_handler,
+                               json_handler])
 
 # init data dictionary
-data = {'orig_x': [], 'orig_y': [], 'gen_x': [], 'gen_y': [], }
+data = {'orig_x': [], 'orig_y': [], 'gen_x': [], 'gen_y': [], "ref_x": [], "ref_y": [], "start": "0", "end": "0"}
 # init dictionary for UI elements
 ui = {"original_select": "select-button",
-      "synthesized_select": "unselect-button"}
+      "synthesized_select": "unselect-button",
+      "ref_x": [],
+      "ref_y": [],
+      "start": "0",
+      "end": "0"}
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def main_window():
 
     if request.method == 'POST':
-        print(request.json)
         # prepare data pack for messages
         data_pack = {'data_dict': data}
         # get updates from the manager
@@ -74,9 +79,24 @@ def main_window():
         if "change_to_gen" in updates:
             ui["original_select"] = "unselect-button"
             ui["synthesized_select"] = "select-button"
+        if "ref_points_x" in updates:
+            data["ref_x"] = updates["ref_points_x"]
+            ui["ref_x"] = [str(el) for el in data["ref_x"]]
+        if "ref_points_y" in updates:
+            data["ref_y"] = updates["ref_points_y"]
+            ui["ref_y"] = [str(el) for el in data["ref_y"]]
+        if "start" in updates:
+            data["start"] = updates["start"]
+            ui["start"] = str(updates["start"])
+        if "end" in updates:
+            data["end"] = updates["end"]
+            ui["end"] = str(updates["end"])
 
-    a = request.form.get("plot_source")
-    print(a)
+    print("start", type(ui["ref_y"]))
+    print("end", type(ui["ref_x"]))
+
+#    a = request.form.get("plot_source")
+#    print(a)
 
     plot = create_chart()
     script, div = components(plot)
@@ -182,5 +202,4 @@ def create_chart():
         source.selected.js_on_change('indices', selection_callback)
         added_points_source.js_on_change("data", add_point_callback)
 
-        print(added_points_source.selected)
     return p

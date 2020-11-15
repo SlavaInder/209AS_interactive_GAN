@@ -45,6 +45,28 @@ class FormHandler(object):
         return updates
 
 
+# class to manage all data coming through json lists
+class JSONHandler(FormHandler):
+    def handle(self, request, data_pack):
+        # handle only in case incoming request is a JSON
+        if request.is_json:
+            incoming = request.json
+            # if it was a "selection" query
+            if "start" in incoming:
+                # just push it back to the app
+                return incoming
+            # if it was a new reference point
+            elif "gen_x" in incoming:
+                updates = {"ref_points_x": incoming['gen_x'],
+                           "ref_points_y": incoming['gen_y']}
+                return updates
+            # if it was neither
+            else:
+                return {}
+        else:
+            return {}
+
+
 # class to handle switch buttons
 class SwitchToGenHandler(FormHandler):
     # button_name - name of the button used for form submission
