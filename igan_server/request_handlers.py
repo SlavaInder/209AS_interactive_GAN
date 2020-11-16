@@ -156,7 +156,12 @@ class LoadDataFormHandler(FormHandler):
                         # delete data
                         os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
                         # create time stamps for each data sample
-
+                        syn_data = igan_data.gen_data_GAN(data = data,
+                                                          data_type= '.mat',
+                                                          num_seq=5,
+                                                          model_chkpoint=2,
+                                                          num_epochs=10,
+                                                          out_dir="models/")
                         for i in range(data.shape[0]):
                             pass
                         updates = {"orig_data_vals": data,

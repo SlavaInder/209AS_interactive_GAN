@@ -19,7 +19,7 @@ import numpy as np
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
 
-import model_utils
+import igan_data.model_utils
 
 class ModelConfig(object):
     def __init__(self):

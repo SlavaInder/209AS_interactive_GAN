@@ -9,9 +9,9 @@
 
 import warnings
 warnings.filterwarnings('ignore')
-import data_utils
-import model_utils
-import model
+import igan_data.data_utils
+import igan_data.model_utils
+import igan_data.model
 import tensorflow as tf
 tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.FATAL)
 import numpy as np
@@ -29,10 +29,10 @@ def gen_data_GAN(data,
                  num_epochs = 200, 
                  out_dir = 'models/'):
     #data = data_utils.load_training_data(data_dir,data_type)
-    model_utils.reset_session_and_model()
+    igan_data.model_utils.reset_session_and_model()
     with tf.Session() as sess:
-        train_config = model.ModelConfig()
-        test_config = model.ModelConfig()
+        train_config = igan_data.model.ModelConfig()
+        test_config = igan_data.model.ModelConfig()
         #the following variables will be hypermaters in final project too.
         train_config.learning_rate = 0.003
         train_config.num_layers = 1
@@ -40,9 +40,9 @@ def gen_data_GAN(data,
         test_config.num_layers = 1
         test_config.batch_size = 1
         test_config.num_steps = 1
-        loader = data_utils.DataLoader(data=data,batch_size=train_config.batch_size, num_steps=train_config.num_steps)
-        train_model = model.MDNModel(train_config, True)
-        test_model = model.MDNModel(test_config, False)
+        loader = igan_data.data_utils.DataLoader(data=data,batch_size=train_config.batch_size, num_steps=train_config.num_steps)
+        train_model = igan_data.model.MDNModel(train_config, True)
+        test_model = igan_data.model.MDNModel(test_config, False)
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
         print('Training...')
@@ -53,15 +53,15 @@ def gen_data_GAN(data,
                 saver.save(sess, out_dir + 'GAN_models.ckpt', global_step=idx)
         print('Done training.')
     ckpt_path = out_dir + 'GAN_models.ckpt-'+str(num_epochs-model_chkpoint)
-    model_utils.reset_session_and_model()
+    igan_data.model_utils.reset_session_and_model()
     fake_list = []
     print('Generating synthetic data...')
     with tf.Session() as sess:
-        test_config = model.ModelConfig()
+        test_config = igan_data.model.ModelConfig()
         test_config.num_layers = 1
         test_config.batch_size = 1
         test_config.num_steps = 1
-        test_model = model.MDNModel(test_config, True)
+        test_model = igan_data.model.MDNModel(test_config, True)
         test_model.is_training = False
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
