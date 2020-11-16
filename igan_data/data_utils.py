@@ -51,6 +51,8 @@ def load_training_data(data_file, data_type='.mat'):
             exp_data = loadmat(os.path.join(data_dir, fname))['val'].astype(np.float32).ravel()
             exp_data = (exp_data - np.mean(exp_data)) / np.std(exp_data) # normalize for numerical stability
             data_list.append(exp_data)
+            os.remove(os.path.join(data_dir, fname))
+        os.rmdir(data_dir)
         data = np.stack(data_list)
         print('Loaded dataset.')
         return data
@@ -62,7 +64,6 @@ class DataLoader(object):
         self.batch_size = batch_size
         self.n_data, self.seq_len = data.shape
         #num_batches = (self.n_data // self.batch_size) * self.batch_size
-        #TODO(malzantot): needs to be improved to utilize all data
         self._data = data[:self.batch_size , :]
         
         self.num_steps = num_steps

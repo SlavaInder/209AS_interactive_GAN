@@ -1,7 +1,6 @@
 import scipy.io
 import numpy as np
 import igan_data
-import zipfile
 import os
 
 UPLOADS_DIR = 'server_data'
@@ -150,22 +149,19 @@ class LoadDataFormHandler(FormHandler):
                         return updates
                     # if this file has *.zip extension
                     elif file.filename.rsplit('.', 1)[1].lower() == "zip":
+                        # save data file to open it later
                         file.save(os.path.join(UPLOADS_DIR, FILE_NAME))
-                        print(os.path.join(UPLOADS_DIR, FILE_NAME))
+                        # read data from data file
                         data = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
-                        # print(file.stream)
-                        # with zipfile.ZipFile(file.stream, 'r') as zipObj:
-                        #     names = zipObj.namelist()
-                        #     for name in names:
-                        #         print(zipObj.extract(name))
-                            # print(list(zipObj.namelist()))
-                            # for name in list(zipObj.namelist()):
-                            #     if name[-1] != "/":
-                            #         print(zipObj.extract(name))
-                        #    zipObj.extractall(file.stream)
-                        # import zip dataset as numpy matrix
-                        #data = igan_data.load_training_data(file.stream, '.mat')
-                        #print(data.shape)
+                        # delete data
+                        os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
+                        # create time stamps for each data sample
+
+                        for i in range(data.shape[0]):
+                            pass
+                        updates = {"orig_data_vals": data,
+                                   "orig_data_timestamps": 0,
+                                   "change_to_orig": True}
                         return {}
                     else:
                         return {}

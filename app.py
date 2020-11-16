@@ -47,7 +47,12 @@ manager = igan_server.HandlerManager([load_handler,
                                       json_handler])
 
 # init data dictionary
-data = {'orig_x': [], 'orig_y': [], 'gen_x': [], 'gen_y': [], "ref_x": [], "ref_y": [], "start": "0", "end": "0"}
+data = {'orig_x': [], 'orig_y': [],
+        'gen_x': [], 'gen_y': [],
+        "ref_x": [], "ref_y": [],
+        "start": "0", "end": "0",
+        "current_orig": 0,
+        "current_gen": 0}
 # init dictionary for UI elements
 ui = {"original_select": "select-button",
       "synthesized_select": "unselect-button",
