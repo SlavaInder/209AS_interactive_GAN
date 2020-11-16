@@ -1,9 +1,14 @@
 import scipy.io
 import numpy as np
+import igan_data
+import zipfile
+import os
 
+UPLOADS_DIR = 'server_data'
+FILE_NAME = "my_data_zipped.zip"
 
 # some constants we will need
-ALLOWED_EXTENSIONS = ['mat', 'csv']
+ALLOWED_EXTENSIONS = ['mat', 'csv', 'zip']
 
 
 # dummy function to emulate data generation
@@ -68,34 +73,20 @@ class JSONHandler(FormHandler):
 
 
 # class to handle switch buttons
-class SwitchToGenHandler(FormHandler):
+class SwitchHandler(FormHandler):
     # button_name - name of the button used for form submission
-    def __init__(self, button_name):
+    def __init__(self, button_name, button_value, update_name, update_value):
         # save the name of the form this handler is connected to
         self.button_name = button_name
+        self.button_value = button_value
+        self.update_name = update_name
+        self.update_value = update_value
 
     # switch to original
     def handle(self, request, data_pack):
         # handle only in case load button is pressed and there is a button
-        if self.button_name in request.form and request.form["submit_button"] == "synthesized":
-            updates = {"change_to_gen": True}
-            return updates
-        else:
-            return {}
-
-
-# class to handle switch buttons
-class SwitchToOriginalHandler(FormHandler):
-    # button_name - name of the button used for form submission
-    def __init__(self, button_name):
-        # save the name of the form this handler is connected to
-        self.button_name = button_name
-
-    # switch to original
-    def handle(self, request, data_pack):
-        # handle only in case load button is pressed and there is a button
-        if self.button_name in request.form and request.form["submit_button"] == "original":
-            updates = {"change_to_orig": True}
+        if self.button_name in request.form and request.form[self.button_name] == self.button_value:
+            updates = {self.update_name: self.update_value}
             return updates
         else:
             return {}
@@ -150,12 +141,32 @@ class LoadDataFormHandler(FormHandler):
                     return {}
                 # if file extension is allowed
                 elif file and allowed_file(file.filename):
+                    # if this file has *.mat extension
                     if file.filename.rsplit('.', 1)[1].lower() == "mat":
                         original_data = scipy.io.loadmat(file.stream)
                         updates = {"orig_data_vals": (ecg_mat_to_np_converter(original_data))[0],
                                    "orig_data_timestamps": (ecg_mat_to_np_converter(original_data))[1],
                                    "change_to_orig": True}
                         return updates
+                    # if this file has *.zip extension
+                    elif file.filename.rsplit('.', 1)[1].lower() == "zip":
+                        file.save(os.path.join(UPLOADS_DIR, FILE_NAME))
+                        print(os.path.join(UPLOADS_DIR, FILE_NAME))
+                        data = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
+                        # print(file.stream)
+                        # with zipfile.ZipFile(file.stream, 'r') as zipObj:
+                        #     names = zipObj.namelist()
+                        #     for name in names:
+                        #         print(zipObj.extract(name))
+                            # print(list(zipObj.namelist()))
+                            # for name in list(zipObj.namelist()):
+                            #     if name[-1] != "/":
+                            #         print(zipObj.extract(name))
+                        #    zipObj.extractall(file.stream)
+                        # import zip dataset as numpy matrix
+                        #data = igan_data.load_training_data(file.stream, '.mat')
+                        #print(data.shape)
+                        return {}
                     else:
                         return {}
                 else:

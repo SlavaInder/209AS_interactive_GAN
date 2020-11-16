@@ -18,7 +18,9 @@
             <div name="load_data_div">
                 <form name="load_data_form" action="" method="post" enctype="multipart/form-data">
                     <p>
-                        <input type="file" class="file_load_button" name="input_file" />
+                        <!-- add <multiple=''> property to allow multiple file uploads -->
+                        <!-- add webkitdirectory="" directory="" property to allow downloading folders -->
+                        <input type="file" class="file_load_button"  name="input_file"  />
                         <input type="submit" class="generic-button" name="load_data_button" value="load_file">
                     </p>
                 </form>
@@ -74,10 +76,14 @@
         <div name="plot_div">
             <div name="selector_div">
                 <form name="selector_form" action="" method="post">
+                        <input type="submit" name="rotate_button" value="<">
                         <input type="submit" class= {{ UI.original_select }} name="submit_button" value="original">
                         <input type="submit" class= {{ UI.synthesized_select }} name="submit_button" value="synthesized">
+                        <input type="submit" name="rotate_button" value=">">
                 </form>
             </div>
+
+
 
         {{ the_div|safe }}
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>

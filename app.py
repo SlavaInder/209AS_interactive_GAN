@@ -13,12 +13,11 @@
 # code sources using partly in this project
 # https://www.fullstackpython.com/blog/responsive-bar-charts-bokeh-flask-python-3.html
 
-import igan
+import igan_server
 
 from flask import Flask, render_template, request, make_response
 
 from bokeh.models import PointDrawTool, ColumnDataSource, BoxSelectTool
-from bokeh.models.widgets import RadioButtonGroup
 from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure
 from bokeh.embed import components
@@ -30,18 +29,22 @@ app.secret_key = 'some secret key'
 
 
 # init handlers
-load_handler = igan.LoadDataFormHandler("load_data_button", "input_file")
-generator_handler = igan.GenerateDataFormHandler("generate_data_button")
-switch_orig_handler = igan.SwitchToOriginalHandler("submit_button")
-switch_gen_handler = igan.SwitchToGenHandler("submit_button")
-json_handler = igan.JSONHandler()
+load_handler = igan_server.LoadDataFormHandler("load_data_button", "input_file")
+generator_handler = igan_server.GenerateDataFormHandler("generate_data_button")
+switch_orig_handler = igan_server.SwitchHandler("submit_button", "original", "change_to_orig", True)
+switch_gen_handler = igan_server.SwitchHandler("submit_button", "synthesized", "change_to_gen", True)
+switch_to_prev_handler = igan_server.SwitchHandler("rotate_button", "<", "prev", True)
+switch_to_next_handler = igan_server.SwitchHandler("rotate_button", ">", "next", True)
+json_handler = igan_server.JSONHandler()
 
 # init handler manager
-manager = igan.HandlerManager([load_handler,
-                               generator_handler,
-                               switch_orig_handler,
-                               switch_gen_handler,
-                               json_handler])
+manager = igan_server.HandlerManager([load_handler,
+                                      generator_handler,
+                                      switch_orig_handler,
+                                      switch_gen_handler,
+                                      switch_to_prev_handler,
+                                      switch_to_next_handler,
+                                      json_handler])
 
 # init data dictionary
 data = {'orig_x': [], 'orig_y': [], 'gen_x': [], 'gen_y': [], "ref_x": [], "ref_y": [], "start": "0", "end": "0"}
@@ -92,11 +95,8 @@ def main_window():
             data["end"] = updates["end"]
             ui["end"] = str(updates["end"])
 
-    print("start", type(ui["ref_y"]))
-    print("end", type(ui["ref_x"]))
-
-#    a = request.form.get("plot_source")
-#    print(a)
+    print("start", data["start"])
+    print("end", data["end"])
 
     plot = create_chart()
     script, div = components(plot)
