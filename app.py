@@ -53,7 +53,8 @@ data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)),
         "ref_x": [], "ref_y": [],
         "start": 0, "end": 0,
         "current_orig": 0,
-        "current_gen": 0}
+        "current_gen": 0,
+        "display": "orig"}
 # init dictionary for UI elements
 ui = {"original_select": "select-button",
       "synthesized_select": "unselect-button",
@@ -75,25 +76,56 @@ def main_window():
         updates = manager.handle(request, data_pack)
         # manage updates
         if "orig_data_vals" in updates:
-            # update dict
             data['orig_y'] = updates["orig_data_vals"]
         if "orig_data_timestamps" in updates:
             data['orig_x'] = updates["orig_data_timestamps"]
         if "gen_data_vals" in updates:
-            # update dict
             data['gen_y'] = updates["gen_data_vals"]
         if "gen_data_timestamps" in updates:
             data['gen_x'] = updates["gen_data_timestamps"]
         if "change_to_orig" in updates:
             data["current_orig"] = updates["change_to_orig"]
+            data["display"] = "orig"
             ui["current_orig"] = str(updates["change_to_orig"])
             ui["original_select"] = "select-button"
             ui["synthesized_select"] = "unselect-button"
         if "change_to_gen" in updates:
             data["current_gen"] = updates["change_to_gen"]
+            data["display"] = "gen"
             ui["current_gen"] = str(updates["change_to_gen"])
             ui["original_select"] = "unselect-button"
             ui["synthesized_select"] = "select-button"
+        if "next" in updates:
+            if data["display"] == "orig":
+                if not data["current_orig"] + 1 < data["orig_y"].shape[0]:
+                    data["current_orig"] = 0
+                    ui["current_orig"] = str(data["current_orig"])
+                else:
+                    data["current_orig"] += 1
+                    ui["current_orig"] = str(data["current_orig"])
+            else:
+                if not data["current_gen"] + 1 < data["gen_y"].shape[0]:
+                    data["current_gen"] = 0
+                    ui["current_gen"] = str(data["current_gen"])
+                else:
+                    data["current_gen"] += 1
+                    ui["current_gen"] = str(data["current_gen"])
+        if "prev" in updates:
+            if data["display"] == "orig":
+                if data["current_orig"] - 1 < 0:
+                    data["current_orig"] = data["orig_y"].shape[0] - 1
+                    ui["current_orig"] = str(data["current_orig"])
+                else:
+                    data["current_orig"] -= 1
+                    ui["current_orig"] = str(data["current_orig"])
+            else:
+                if data["current_gen"] - 1 < 0:
+                    data["current_gen"] = data["gen_y"].shape[0] - 1
+                    ui["current_gen"] = str(data["current_gen"])
+                else:
+                    data["current_gen"] += 1
+                    ui["current_gen"] = str(data["current_gen"])
+
         if "ref_points_x" in updates:
             data["ref_x"] = updates["ref_points_x"]
             ui["ref_x"] = [str(el) for el in data["ref_x"]]

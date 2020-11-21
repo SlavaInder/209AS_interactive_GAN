@@ -104,11 +104,19 @@ class GenerateDataFormHandler(FormHandler):
         if self.button_name in request.form:
             # if necessary data is loaded into the pack
             if 'data_dict' in data_pack:
-                # replace dummy generator later
-                values, timestamps = dummy_generator(data_pack['data_dict']['orig_y'], data_pack['data_dict']['orig_x'])
-                updates = {"gen_data_vals": values,
+                syn_data = igan_data.gen_data_GAN(data = data_pack['data_dict']['orig_y'],
+                                                  data_type= '.mat',
+                                                  num_seq=5,
+                                                  model_chkpoint=2,
+                                                  num_epochs=10,
+                                                  out_dir="models/")
+                # create timestamps accordingly
+                timestamps = np.zeros_like(syn_data)
+                for i in range(syn_data.shape[0]):
+                    timestamps[i, :] = np.arange(syn_data.shape[1])
+                updates = {"gen_data_vals": syn_data,
                            "gen_data_timestamps": timestamps,
-                           "change_to_gen": True}
+                           "change_to_gen": 0}
                 return updates
             else:
                 return {}
@@ -154,14 +162,7 @@ class LoadDataFormHandler(FormHandler):
                         # read data from data file
                         values = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
                         # delete data
-                        # os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
-                        # # create time stamps for each data sample
-                        # syn_data = igan_data.gen_data_GAN(data = data,
-                        #                                   data_type= '.mat',
-                        #                                   num_seq=5,
-                        #                                   model_chkpoint=2,
-                        #                                   num_epochs=10,
-                        #                                   out_dir="models/")
+                        os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
                         # create timestamps accordingly
                         timestamps = np.zeros_like(values)
                         for i in range(values.shape[0]):
