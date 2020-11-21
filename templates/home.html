@@ -76,10 +76,17 @@
         <div name="plot_div">
             <div name="selector_div">
                 <form name="selector_form" action="" method="post">
-                        <input type="submit" name="rotate_button" value="<">
-                        <input type="submit" class= {{ UI.original_select }} name="submit_button" value="original">
-                        <input type="submit" class= {{ UI.synthesized_select }} name="submit_button" value="synthesized">
-                        <input type="submit" name="rotate_button" value=">">
+                    {% if UI.original_select == "select-button" %}
+                        {% set jin_currntn_sample = UI.current_orig %}
+                    {% else %}
+                        {% set jin_currntn_sample = UI.current_gen %}
+                    {% endif %}
+
+                    <input type="submit" name="rotate_button" value="<">
+                    <input type="submit" class= {{ UI.original_select }} name="submit_button" value="original">
+                    Sample {{ jin_currntn_sample }}
+                    <input type="submit" class= {{ UI.synthesized_select }} name="submit_button" value="synthesized">
+                    <input type="submit" name="rotate_button" value=">">
                 </form>
             </div>
 

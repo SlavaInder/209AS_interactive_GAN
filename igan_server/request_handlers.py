@@ -152,22 +152,24 @@ class LoadDataFormHandler(FormHandler):
                         # save data file to open it later
                         file.save(os.path.join(UPLOADS_DIR, FILE_NAME))
                         # read data from data file
-                        data = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
+                        values = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
                         # delete data
-                        os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
-                        # create time stamps for each data sample
-                        syn_data = igan_data.gen_data_GAN(data = data,
-                                                          data_type= '.mat',
-                                                          num_seq=5,
-                                                          model_chkpoint=2,
-                                                          num_epochs=10,
-                                                          out_dir="models/")
-                        for i in range(data.shape[0]):
-                            pass
-                        updates = {"orig_data_vals": data,
-                                   "orig_data_timestamps": 0,
-                                   "change_to_orig": True}
-                        return {}
+                        # os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
+                        # # create time stamps for each data sample
+                        # syn_data = igan_data.gen_data_GAN(data = data,
+                        #                                   data_type= '.mat',
+                        #                                   num_seq=5,
+                        #                                   model_chkpoint=2,
+                        #                                   num_epochs=10,
+                        #                                   out_dir="models/")
+                        # create timestamps accordingly
+                        timestamps = np.zeros_like(values)
+                        for i in range(values.shape[0]):
+                            timestamps[i, :] = np.arange(values.shape[1])
+                        updates = {"orig_data_vals": values,
+                                   "orig_data_timestamps": timestamps,
+                                   "change_to_orig": 0}
+                        return updates
                     else:
                         return {}
                 else:

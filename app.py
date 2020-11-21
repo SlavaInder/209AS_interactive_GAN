@@ -22,6 +22,7 @@ from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure
 from bokeh.embed import components
 
+import numpy as np
 
 # set a flask instance
 app = Flask(__name__)
@@ -31,8 +32,8 @@ app.secret_key = 'some secret key'
 # init handlers
 load_handler = igan_server.LoadDataFormHandler("load_data_button", "input_file")
 generator_handler = igan_server.GenerateDataFormHandler("generate_data_button")
-switch_orig_handler = igan_server.SwitchHandler("submit_button", "original", "change_to_orig", True)
-switch_gen_handler = igan_server.SwitchHandler("submit_button", "synthesized", "change_to_gen", True)
+switch_orig_handler = igan_server.SwitchHandler("submit_button", "original", "change_to_orig", 0)
+switch_gen_handler = igan_server.SwitchHandler("submit_button", "synthesized", "change_to_gen", 0)
 switch_to_prev_handler = igan_server.SwitchHandler("rotate_button", "<", "prev", True)
 switch_to_next_handler = igan_server.SwitchHandler("rotate_button", ">", "next", True)
 json_handler = igan_server.JSONHandler()
@@ -47,10 +48,10 @@ manager = igan_server.HandlerManager([load_handler,
                                       json_handler])
 
 # init data dictionary
-data = {'orig_x': [], 'orig_y': [],
-        'gen_x': [], 'gen_y': [],
+data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)),
+        'gen_x': np.zeros((1, 1)), 'gen_y': np.zeros((1, 1)),
         "ref_x": [], "ref_y": [],
-        "start": "0", "end": "0",
+        "start": 0, "end": 0,
         "current_orig": 0,
         "current_gen": 0}
 # init dictionary for UI elements
@@ -59,7 +60,9 @@ ui = {"original_select": "select-button",
       "ref_x": [],
       "ref_y": [],
       "start": "0",
-      "end": "0"}
+      "end": "0",
+      "current_orig": "0",
+      "current_gen": "0"}
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
@@ -82,9 +85,13 @@ def main_window():
         if "gen_data_timestamps" in updates:
             data['gen_x'] = updates["gen_data_timestamps"]
         if "change_to_orig" in updates:
+            data["current_orig"] = updates["change_to_orig"]
+            ui["current_orig"] = str(updates["change_to_orig"])
             ui["original_select"] = "select-button"
             ui["synthesized_select"] = "unselect-button"
         if "change_to_gen" in updates:
+            data["current_gen"] = updates["change_to_gen"]
+            ui["current_gen"] = str(updates["change_to_gen"])
             ui["original_select"] = "unselect-button"
             ui["synthesized_select"] = "select-button"
         if "ref_points_x" in updates:
@@ -135,10 +142,10 @@ def download_window():
 
 def create_chart():
     # divide dict into parts
-    orig_data = {"orig_x": data["orig_x"],
-                 "orig_y": data["orig_y"]}
-    gen_data = {"gen_x": data["gen_x"],
-                "gen_y": data["gen_y"]}
+    orig_data = {"orig_x": data["orig_x"][data["current_orig"]],
+                 "orig_y": data["orig_y"][data["current_orig"]]}
+    gen_data = {"gen_x": data["gen_x"][data["current_gen"]],
+                "gen_y": data["gen_y"][data["current_gen"]]}
 
     # init necessary tools
     tools = ["pan,wheel_zoom,box_zoom,reset"]
