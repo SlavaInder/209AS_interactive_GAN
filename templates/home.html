@@ -14,7 +14,7 @@
             var cell_text = output.textContent;
             setInterval(function() {
                 output.innerHTML = cell_text.concat(xhr.responseText, "\n");
-            }, 500);
+            }, 1000);
         });
     </script>
 </head>

@@ -223,7 +223,7 @@ def flask_logger(cell_content):
                 else:
                     pass
                     # yield "No MSG"
-        sleep(2)
+        sleep(1)
 
 def create_chart():
     # divide dict into parts
