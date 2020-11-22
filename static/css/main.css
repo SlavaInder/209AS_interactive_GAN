@@ -24,3 +24,7 @@ h1 {
     height: 25px;
     width: 100px;
 }
+
+div {
+    white-space: pre-wrap;
+}

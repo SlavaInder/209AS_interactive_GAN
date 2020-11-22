@@ -34,6 +34,7 @@ def gen_data_GAN(data,
     #data = data_utils.load_training_data(data_dir,data_type)
 
     path_to_logger = os.path.join(LOG_PATH, LOG_FILE)
+    open(path_to_logger, "w").close()
 
     igan_data.model_utils.reset_session_and_model()
     with tf.Session() as sess:
@@ -92,4 +93,7 @@ def gen_data_GAN(data,
     with open(path_to_logger, "a") as f:
         f.write('Data generated\n')
     print('Data generated')
+
+    open(path_to_logger, "w").close()
+
     return fake_list

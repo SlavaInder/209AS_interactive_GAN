@@ -11,8 +11,9 @@
             var xhr = new XMLHttpRequest();
             xhr.open('GET', '{{ url_for('stream') }}', true);
             xhr.send();
+            var cell_text = output.textContent;
             setInterval(function() {
-                output.textContent = xhr.responseText;
+                output.innerHTML = cell_text.concat(xhr.responseText, "\n");
             }, 500);
         });
     </script>
@@ -102,8 +103,11 @@
                 </form>
             </div>
 
-            <div class="logging_window">
-                <pre id="output"></pre>
+            <div class="logging_window" id="output">
+                {% for log_msg in UI.logs %}
+                    {% set appended_log_msg = log_msg + "<br/>" %}
+                    {{ appended_log_msg }}<br/>
+                {% endfor %}
             </div>
 
         {{ the_div|safe }}

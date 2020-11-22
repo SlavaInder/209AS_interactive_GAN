@@ -68,7 +68,8 @@ ui = {"original_select": "select-button",
       "start": "0",
       "end": "0",
       "current_orig": "0",
-      "current_gen": "0"}
+      "current_gen": "0",
+      "logs": []}
 
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
@@ -180,26 +181,49 @@ def download_window():
         return render_template("download.html")
 
 
-@app.route("/log_stream", methods=["GET"])
+@app.route("/log_stream", methods=["GET", "POST"])
 def stream():
     """returns logging information"""
-    return Response(flask_logger(), mimetype="text/plain", content_type="text/event-stream")
+    if request.method == "GET":
+        content = request.data
+    else:
+        content = None
+    return Response(flask_logger(content), mimetype="text/plain", content_type="text/event-stream")
 
 
-def flask_logger():
+# allows to log message
+def flask_logger(cell_content):
+    # get path to the file where all the messages are stored
     log_path = os.path.join(LOG_PATH, LOG_FILE)
+
+    # if cell_content is not None and '\n' in cell_content:
+    #     cell_content = cell_content.split('\n')
+    # else:
+    #     cell_content = []
+
     while True:
         # read and yield new messages
         with open(log_path, "r") as f:
+            # read all log messages and
             log_msg = f.read()
-            if not log_msg == "":
-                yield log_msg
-            else:
-                pass
-                # yield "No MSG"
-        # clear the file
-        open(log_path, 'w').close()
-        sleep(1)
+        # check if there is anything to print
+        if log_msg != '':
+            # split messages into strings
+            log_msg = log_msg.split('\n')
+            print("log_msg", log_msg)
+            # if the last string is empty, delete it
+            if log_msg[-1] == "": log_msg.pop()
+            for i in range(len(log_msg)):
+                # if the message has not been printed yet
+                if log_msg[i] not in ui["logs"]:
+                    # print it and save for the future
+                    yield str(log_msg[i] + '<br/>')
+                    ui["logs"].append(log_msg[i])
+                # if the message has already been printed, do nothing
+                else:
+                    pass
+                    # yield "No MSG"
+        sleep(2)
 
 def create_chart():
     # divide dict into parts
