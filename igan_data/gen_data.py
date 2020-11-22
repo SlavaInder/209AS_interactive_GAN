@@ -22,6 +22,9 @@ import os
 # 4. at what epochs to save model 5. training epoch 6. model output dir
 # more hyperparameters will be added after mid term
 
+LOG_FILE = 'tensorflow_logger.txt'
+LOG_PATH = 'server_data'
+
 def gen_data_GAN(data, 
                  data_type = '.mat', 
                  num_seq = 10, 
@@ -29,6 +32,9 @@ def gen_data_GAN(data,
                  num_epochs = 200, 
                  out_dir = 'models/'):
     #data = data_utils.load_training_data(data_dir,data_type)
+
+    path_to_logger = os.path.join(LOG_PATH, LOG_FILE)
+
     igan_data.model_utils.reset_session_and_model()
     with tf.Session() as sess:
         train_config = igan_data.model.ModelConfig()
@@ -45,16 +51,25 @@ def gen_data_GAN(data,
         test_model = igan_data.model.MDNModel(test_config, False)
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
+        with open(path_to_logger, "a") as f:
+            f.write('Training...\n')
         print('Training...')
         for idx in range(num_epochs):
             epoch_loss = train_model.train_for_epoch(sess, loader)
+            with open(path_to_logger, "a") as f:
+                log_message = 'Epoch: ' + str(idx) + ' Loss: ' + str(epoch_loss) + "\n"
+                f.write(log_message)
             print('Epoch: ',idx, ' Loss: ', epoch_loss)
             if (idx+1) % model_chkpoint== 0:
                 saver.save(sess, out_dir + 'GAN_models.ckpt', global_step=idx)
+        with open(path_to_logger, "a") as f:
+            f.write('Done training.\n')
         print('Done training.')
     ckpt_path = out_dir + 'GAN_models.ckpt-'+str(num_epochs-model_chkpoint)
     igan_data.model_utils.reset_session_and_model()
     fake_list = []
+    with open(path_to_logger, "a") as f:
+        f.write('Generating synthetic data...\n')
     print('Generating synthetic data...')
     with tf.Session() as sess:
         test_config = igan_data.model.ModelConfig()
@@ -74,5 +89,7 @@ def gen_data_GAN(data,
             fake_data = test_model.predict(sess, data.shape[1])
             fake_list.append(fake_data)
     fake_list = np.array(fake_list) #returns num_seq x data.shape[0] numpy array
+    with open(path_to_logger, "a") as f:
+        f.write('Data generated\n')
     print('Data generated')
     return fake_list

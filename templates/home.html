@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <title>Home</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+    <script>
+        $(document).ready(function(){
+            var output = document.getElementById('output');
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{{ url_for('stream') }}', true);
+            xhr.send();
+            setInterval(function() {
+                output.textContent = xhr.responseText;
+            }, 500);
+        });
+    </script>
 </head>
 <body>
     <div name="header_div">
@@ -90,7 +102,9 @@
                 </form>
             </div>
 
-
+            <div class="logging_window">
+                <pre id="output"></pre>
+            </div>
 
         {{ the_div|safe }}
         <script src="http://cdn.pydata.org/bokeh/release/bokeh-2.2.3.min.js"></script>

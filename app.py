@@ -14,8 +14,9 @@
 # https://www.fullstackpython.com/blog/responsive-bar-charts-bokeh-flask-python-3.html
 
 import igan_server
+from time import sleep
 
-from flask import Flask, render_template, request, make_response
+from flask import Flask, render_template, request, make_response, Response
 
 from bokeh.models import PointDrawTool, ColumnDataSource, BoxSelectTool
 from bokeh.models.callbacks import CustomJS
@@ -23,6 +24,10 @@ from bokeh.plotting import figure
 from bokeh.embed import components
 
 import numpy as np
+import os
+
+LOG_FILE = 'tensorflow_logger.txt'
+LOG_PATH = 'server_data'
 
 # set a flask instance
 app = Flask(__name__)
@@ -104,6 +109,9 @@ def main_window():
                     data["current_orig"] += 1
                     ui["current_orig"] = str(data["current_orig"])
             else:
+                print(data["gen_y"].shape)
+                print(data["current_gen"])
+                print(data["current_gen"] + 1 < data["gen_y"].shape[0])
                 if not data["current_gen"] + 1 < data["gen_y"].shape[0]:
                     data["current_gen"] = 0
                     ui["current_gen"] = str(data["current_gen"])
@@ -123,7 +131,7 @@ def main_window():
                     data["current_gen"] = data["gen_y"].shape[0] - 1
                     ui["current_gen"] = str(data["current_gen"])
                 else:
-                    data["current_gen"] += 1
+                    data["current_gen"] -= 1
                     ui["current_gen"] = str(data["current_gen"])
 
         if "ref_points_x" in updates:
@@ -171,6 +179,27 @@ def download_window():
     else:
         return render_template("download.html")
 
+
+@app.route("/log_stream", methods=["GET"])
+def stream():
+    """returns logging information"""
+    return Response(flask_logger(), mimetype="text/plain", content_type="text/event-stream")
+
+
+def flask_logger():
+    log_path = os.path.join(LOG_PATH, LOG_FILE)
+    while True:
+        # read and yield new messages
+        with open(log_path, "r") as f:
+            log_msg = f.read()
+            if not log_msg == "":
+                yield log_msg
+            else:
+                pass
+                # yield "No MSG"
+        # clear the file
+        open(log_path, 'w').close()
+        sleep(1)
 
 def create_chart():
     # divide dict into parts
