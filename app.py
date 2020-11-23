@@ -71,6 +71,9 @@ ui = {"original_select": "select-button",
       "current_gen": "0",
       "logs": []}
 
+WIDTH = 1200
+HEIGHT = 380
+MARGIN = (0, 0, 0, 120)
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def main_window():
@@ -246,13 +249,13 @@ def create_chart():
 
     # create a plot
     if ui["original_select"] == "select-button":
-        p = figure(title="original data", x_axis_label='x', y_axis_label='y', tools=tools)
+        p = figure(title="original data", x_axis_label='x', y_axis_label='y', tools=tools, width=WIDTH, height=HEIGHT, margin=MARGIN)
         # add a line renderer with legend and line thickness
         p.line(x='orig_x', y='orig_y', source=source, legend_label="Temp.", line_width=2)
         # add a circle renderer with a size, color, and alpha
         p.circle(x='orig_x', y='orig_y', source=source, size=3, color="navy", alpha=0.5)
     else:
-        p = figure(title="genreated data", x_axis_label='x', y_axis_label='y', tools=tools)
+        p = figure(title="genreated data", x_axis_label='x', y_axis_label='y', tools=tools, width=WIDTH, height=HEIGHT, margin=MARGIN)
         # add a line renderer with legend and line thickness
         p.line(x='gen_x', y='gen_y', source=source, legend_label="Temp.", line_width=2)
         # add a circle renderer with a size, color, and alpha
