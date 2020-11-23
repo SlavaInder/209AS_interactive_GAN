@@ -37,15 +37,17 @@ app.secret_key = 'some secret key'
 # init handlers
 load_handler = igan_server.LoadDataFormHandler("load_data_button", "input_file")
 generator_handler = igan_server.GenerateDataFormHandler("generate_data_button")
+imputation_handler = igan_server.ImputeDataFormHandler("impute_data_button")
 switch_orig_handler = igan_server.SwitchHandler("submit_button", "original", "change_to_orig", 0)
 switch_gen_handler = igan_server.SwitchHandler("submit_button", "synthesized", "change_to_gen", 0)
-switch_to_prev_handler = igan_server.SwitchHandler("rotate_button", "<", "prev", True)
-switch_to_next_handler = igan_server.SwitchHandler("rotate_button", ">", "next", True)
+switch_to_prev_handler = igan_server.SwitchHandler("rotate_button", "<<<", "prev", True)
+switch_to_next_handler = igan_server.SwitchHandler("rotate_button", ">>>", "next", True)
 json_handler = igan_server.JSONHandler()
 
 # init handler manager
 manager = igan_server.HandlerManager([load_handler,
                                       generator_handler,
+                                      imputation_handler,
                                       switch_orig_handler,
                                       switch_gen_handler,
                                       switch_to_prev_handler,
@@ -74,6 +76,7 @@ ui = {"original_select": "select-button",
 WIDTH = 1200
 HEIGHT = 380
 MARGIN = (0, 0, 0, 120)
+
 
 @app.route('/', methods=['GET', 'POST', 'DELETE'])
 def main_window():
@@ -104,6 +107,8 @@ def main_window():
             ui["current_gen"] = str(updates["change_to_gen"])
             ui["original_select"] = "unselect-button"
             ui["synthesized_select"] = "select-button"
+        if "updated_sample" in updates:
+            data["gen_y"][data["current_gen"], :] = updates["updated_sample"]
         if "next" in updates:
             if data["display"] == "orig":
                 if not data["current_orig"] + 1 < data["orig_y"].shape[0]:

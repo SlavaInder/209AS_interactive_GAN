@@ -91,6 +91,65 @@ class SwitchHandler(FormHandler):
             return {}
 
 
+# class to handle data imputation
+class ImputeDataFormHandler(FormHandler):
+    # button_name - name of the button used for form submission
+    def __init__(self, button_name):
+        # save the name of the form this handler is connected to
+        self.button_name = button_name
+
+    # generate data using GAN
+    def handle(self, request, data_pack):
+        # handle only in case load button is pressed and there is a button
+        if self.button_name in request.form:
+            # if necessary data is loaded into the pack
+            if 'data_dict' in data_pack:
+                # prepare input data
+                inp_data = np.copy(data_pack['data_dict']['gen_y'][data_pack['data_dict']["current_gen"]])
+                # check if start index or end index are out-of-bounds
+                start_indx = int(data_pack['data_dict']["start"])
+                end_indx = int(data_pack['data_dict']["end"])
+                if start_indx < 0: start_indx = 0
+                if end_indx > inp_data.shape[0]: end_indx = inp_data.shape[0]
+                print("start_indx = ", start_indx)
+                print("end_indx = ", end_indx)
+                # replace all values deleted by the user with NaNs
+                for i in range(start_indx, end_indx):
+                    inp_data[i] = np.NaN
+                # replace missing data with specified reference points
+                ref_x = data_pack['data_dict']["ref_x"]
+                ref_y = data_pack['data_dict']["ref_y"]
+                print("ref_x = ", ref_x)
+                print("ref_y = ", ref_y)
+                for j in range(len(ref_x)):
+                    ref_x[j], ref_y[j] = int(ref_x[j]), float(ref_y[j])
+                    inp_data[ref_x[j]] = data_pack['data_dict']["ref_y"][j]
+
+                print("inp_data shape ", inp_data.shape)
+                print("inp_data= ", inp_data)
+
+                imputed_data = igan_data.impute_data(orig_data=data_pack['data_dict']['orig_y'],
+                                                       data_type='.mat',
+                                                       inp_data=inp_data,
+                                                       miss_rate=0.3,
+                                                       batch_size=128,
+                                                       hint_rate=0.9,
+                                                       alpha=100,
+                                                       iterations=10000)
+
+                print("imputed_data shape ", imputed_data.shape)
+                print("imputed_data ", imputed_data)
+                imputed_data = imputed_data[:, 0]
+                print("after imputed_data shape ", imputed_data.shape)
+                print("after imputed_data ", imputed_data)
+                updates = {"updated_sample": imputed_data}
+                return updates
+            else:
+                return {}
+        else:
+            return {}
+
+
 # class to handle data generation
 class GenerateDataFormHandler(FormHandler):
     # button_name - name of the button used for form submission
@@ -108,7 +167,7 @@ class GenerateDataFormHandler(FormHandler):
                                                   data_type= '.mat',
                                                   num_seq=5,
                                                   model_chkpoint=2,
-                                                  num_epochs=10,
+                                                  num_epochs=1,
                                                   out_dir="models/")
                 # create timestamps accordingly
                 timestamps = np.zeros_like(syn_data)
