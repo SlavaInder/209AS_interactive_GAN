@@ -28,7 +28,7 @@ LOG_PATH = 'server_data'
 def gen_data_GAN(data, 
                  data_type = '.mat', 
                  num_seq = 10, 
-                 model_chkpoint = 100,
+                 model_chkpoint = 10,
                  num_epochs = 200, 
                  out_dir = 'models/'):
     #data = data_utils.load_training_data(data_dir,data_type)
