@@ -15,6 +15,7 @@
 
 import igan_server
 from time import sleep
+import random
 
 from flask import Flask, render_template, request, make_response, Response
 
@@ -22,9 +23,17 @@ from bokeh.models import PointDrawTool, ColumnDataSource, BoxSelectTool
 from bokeh.models.callbacks import CustomJS
 from bokeh.plotting import figure
 from bokeh.embed import components
+from bokeh.colors import RGB
 
 import numpy as np
 import os
+
+import io
+import base64
+
+import matplotlib.pyplot as plt
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
 
 LOG_FILE = 'tensorflow_logger.txt'
 LOG_PATH = 'server_data'
@@ -43,6 +52,12 @@ switch_gen_handler = igan_server.SwitchHandler("submit_button", "synthesized", "
 switch_to_prev_handler = igan_server.SwitchHandler("rotate_button", "<<<", "prev", True)
 switch_to_next_handler = igan_server.SwitchHandler("rotate_button", ">>>", "next", True)
 json_handler = igan_server.JSONHandler()
+
+
+# define colors:
+mid_black = RGB(50, 50, 50)
+light_green = RGB(213, 232, 212)
+light_purple = (225 / 255, 213 / 255, 231 / 255)
 
 # init handler manager
 manager = igan_server.HandlerManager([load_handler,
@@ -162,6 +177,8 @@ def main_window():
     plot = create_chart()
     script, div = components(plot)
 
+
+
     return render_template("home.html",
                            the_div=div,
                            the_script=script,
@@ -254,13 +271,13 @@ def create_chart():
 
     # create a plot
     if ui["original_select"] == "select-button":
-        p = figure(title="original data", x_axis_label='x', y_axis_label='y', tools=tools, width=WIDTH, height=HEIGHT, margin=MARGIN)
+        p = figure(title="original data", x_axis_label='x', y_axis_label='y', tools=tools, sizing_mode="stretch_both")
         # add a line renderer with legend and line thickness
         p.line(x='orig_x', y='orig_y', source=source, legend_label="Temp.", line_width=2)
         # add a circle renderer with a size, color, and alpha
         p.circle(x='orig_x', y='orig_y', source=source, size=3, color="navy", alpha=0.5)
     else:
-        p = figure(title="genreated data", x_axis_label='x', y_axis_label='y', tools=tools, width=WIDTH, height=HEIGHT, margin=MARGIN)
+        p = figure(title="genreated data", x_axis_label='x', y_axis_label='y', tools=tools, sizing_mode="stretch_both")
         # add a line renderer with legend and line thickness
         p.line(x='gen_x', y='gen_y', source=source, legend_label="Temp.", line_width=2)
         # add a circle renderer with a size, color, and alpha
@@ -307,4 +324,36 @@ def create_chart():
         source.selected.js_on_change('indices', selection_callback)
         added_points_source.js_on_change("data", add_point_callback)
 
+    # specify background color
+    p.background_fill_color = light_green
+    p.border_fill_color = light_green
+    # specify grid line colors
+    p.xgrid.grid_line_color = mid_black
+    p.xgrid.grid_line_width = 1
+    p.ygrid.grid_line_color = mid_black
+    p.ygrid.grid_line_width = 1
+    # specify axis size and colors
+    p.xaxis.axis_line_color = mid_black
+    p.yaxis.axis_line_color = mid_black
+    # delete legend
+    p.legend.visible = False
+
     return p
+
+@app.route('/plot.png')
+def plot_png():
+    fig = create_figure()
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+def create_figure():
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    xs = range(100)
+    ys = [random.randint(1, 50) for x in xs]
+    axis.plot(xs, ys)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    return fig
