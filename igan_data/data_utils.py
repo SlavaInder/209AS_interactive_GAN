@@ -20,6 +20,10 @@ import sys
 from scipy.io import loadmat
 from zipfile import ZipFile
 
+if os.name == 'posix':
+    fchar = '/'
+else:
+    fchar = '\\'
 
 #dataset is a zip file
 def load_training_data(data_file, data_type='.mat'):
@@ -45,17 +49,26 @@ def load_training_data(data_file, data_type='.mat'):
         with ZipFile(data_file, 'r') as zipObj:
             zipObj.extractall(os.path.dirname(data_file))
         data_dir = os.path.join(os.path.dirname(data_file), zipObj.namelist()[0][:-1])
-        data_files = [f for f in os.listdir(data_dir) if f.endswith('.mat')]
-        data_list = []
-        for fname in data_files:
-            exp_data = loadmat(os.path.join(data_dir, fname))['val'].astype(np.float32).ravel()
-            exp_data = (exp_data - np.mean(exp_data)) / np.std(exp_data) # normalize for numerical stability
-            data_list.append(exp_data)
-            os.remove(os.path.join(data_dir, fname))
-        os.rmdir(data_dir)
-        data = np.stack(data_list)
+        classList = [f for f in os.listdir(data_dir) if any(char.isdigit() for char in f)]
+        f_temp = [f for f in os.listdir(data_dir+fchar+classList[0]) if f.endswith('.mat')]
+        dat_temp = loadmat(os.path.join(data_dir+fchar+classList[0], f_temp[0]))['val'].astype(np.float32).ravel()
+        data = np.empty((0,dat_temp.shape[0]))
+        class_g = []
+        for foldername in classList:
+            data_files = [f for f in os.listdir(data_dir+fchar+foldername) if f.endswith('.mat')]
+            data_list_local = []
+            class_list_local = []
+            for fname in data_files:
+                exp_data = loadmat(os.path.join(data_dir+fchar+foldername, fname))['val'].astype(np.float32).ravel()
+                exp_data = (exp_data - np.mean(exp_data)) / np.std(exp_data) # normalize for numerical stability
+                data_list_local.append(exp_data)
+                class_list_local.append(foldername)
+            data_l = np.stack(data_list_local)
+            class_l = np.stack(class_list_local)
+            data = np.concatenate((data,data_l))
+            class_g = np.concatenate((class_g,class_l))
         print('Loaded dataset.')
-        return data
+        return data, class_g, len(classList)
     
           
 

@@ -219,7 +219,7 @@ class LoadDataFormHandler(FormHandler):
                         # save data file to open it later
                         file.save(os.path.join(UPLOADS_DIR, FILE_NAME))
                         # read data from data file
-                        values = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
+                        values, data_classes, num_classes = igan_data.load_training_data(os.path.join(UPLOADS_DIR, FILE_NAME), '.mat')
                         # delete data
                         os.remove(os.path.join(UPLOADS_DIR, FILE_NAME))
                         # create timestamps accordingly
@@ -227,6 +227,7 @@ class LoadDataFormHandler(FormHandler):
                         for i in range(values.shape[0]):
                             timestamps[i, :] = np.arange(values.shape[1])
                         updates = {"orig_data_vals": values,
+                                   "orig_data_classes": data_classes,
                                    "orig_data_timestamps": timestamps,
                                    "change_to_orig": 0}
                         return updates

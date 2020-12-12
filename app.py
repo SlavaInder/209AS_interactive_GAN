@@ -70,8 +70,8 @@ manager = igan_server.HandlerManager([load_handler,
                                       json_handler])
 
 # init data dictionary
-data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)),
-        'gen_x': np.zeros((1, 1)), 'gen_y': np.zeros((1, 1)),
+data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)), 'orig_class': [''],
+        'gen_x': np.zeros((1, 1)), 'gen_y': np.zeros((1, 1)), 'gen_class': [''],
         "ref_x": [], "ref_y": [],
         "start": 0, "end": 0,
         "current_orig": 0,
@@ -106,6 +106,8 @@ def main_window():
             data['orig_y'] = updates["orig_data_vals"]
         if "orig_data_timestamps" in updates:
             data['orig_x'] = updates["orig_data_timestamps"]
+        if "orig_data_classes" in updates:
+            data['orig_class'] = updates["orig_data_classes"]
         if "gen_data_vals" in updates:
             data['gen_y'] = updates["gen_data_vals"]
         if "gen_data_timestamps" in updates:
