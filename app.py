@@ -14,6 +14,7 @@
 # https://www.fullstackpython.com/blog/responsive-bar-charts-bokeh-flask-python-3.html
 
 import igan_server
+import igan_data
 from time import sleep
 import random
 
@@ -253,6 +254,7 @@ def flask_logger(cell_content):
                     # yield "No MSG"
         sleep(1)
 
+
 def create_chart():
     # divide dict into parts
     orig_data = {"orig_x": data["orig_x"][data["current_orig"]],
@@ -352,20 +354,130 @@ def create_chart():
 
     return p
 
-@app.route('/plot.png')
-def plot_png():
-    fig = create_figure()
+
+@app.route('/orig_clsdist_plot.png')
+def orig_clsdist_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["orig_y"]) >= 2:
+        x,y = igan_data.class_dist(data["orig_class"])
+        axis.pie(x, labels=y, autopct='%1.1f%%', shadow=True, startangle=90)
     output = io.BytesIO()
     FigureCanvas(fig).print_png(output)
     return Response(output.getvalue(), mimetype='image/png')
 
 
-def create_figure():
+@app.route('/orig_dsdiv_plot.png')
+def orig_dsdiv_plot_png():
+    # set up the figure
     fig = Figure()
     axis = fig.add_subplot(1, 1, 1)
-    xs = range(100)
-    ys = [random.randint(1, 50) for x in xs]
-    axis.plot(xs, ys)
     # axis.set_facecolor(light_purple)
     fig.patch.set_facecolor(light_purple)
-    return fig
+    # if there is some data, add it to the plot
+    if len(data["orig_y"]) >= 2:
+        t, _ = igan_data.data_diversity(data["orig_y"])
+        axis.hist(t, color='red', bins=40, label='Diversity')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/orig_dsdist_plot.png')
+def orig_dsdist_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["orig_y"]) >= 2:
+        m = igan_data.data_dist(data["orig_y"])
+        axis.hist(m, color='green', bins=20)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/orig_dsnvlt_plot.png')
+def orig_dsnvlt_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["orig_y"]) >= 2:
+        _, flattened_f, _, _ = igan_data.data_novelty(data["orig_y"])
+        axis.hist(flattened_f, color='blue', bins=20,label='Novelty')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/gen_clsdist_plot.png')
+def gen_clsdist_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["gen_y"]) >= 2:
+        x,y = igan_data.class_dist(data["gen_class"])
+        axis.pie(x, labels=y, autopct='%1.1f%%', shadow=True, startangle=90)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/gen_dsdiv_plot.png')
+def gen_dsdiv_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["gen_y"]) >= 2:
+        t, _ = igan_data.data_diversity(data["gen_y"])
+        axis.hist(t, color='red', bins=40, label='Diversity')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/gen_dsdist_plot.png')
+def gen_dsdist_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["gen_y"]) >= 2:
+        m = igan_data.data_dist(data["gen_y"])
+        axis.hist(m, color='green', bins=20)
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')
+
+
+@app.route('/gen_dsnvlt_plot.png')
+def gen_dsnvlt_plot_png():
+    # set up the figure
+    fig = Figure()
+    axis = fig.add_subplot(1, 1, 1)
+    # axis.set_facecolor(light_purple)
+    fig.patch.set_facecolor(light_purple)
+    # if there is some data, add it to the plot
+    if len(data["gen_y"]) >= 2:
+        _, flattened_f, _, _ = igan_data.data_novelty(data["gen_y"])
+        axis.hist(flattened_f, color='blue', bins=20,label='Novelty')
+    output = io.BytesIO()
+    FigureCanvas(fig).print_png(output)
+    return Response(output.getvalue(), mimetype='image/png')

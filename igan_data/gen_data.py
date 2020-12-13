@@ -25,26 +25,14 @@ import os, shutil
 LOG_FILE = 'tensorflow_logger.txt'
 LOG_PATH = 'server_data'
 
-# path_to_logger = os.path.join(LOG_PATH, LOG_FILE)
-# open(path_to_logger, "w").close()
-#
-# with open(path_to_logger, "a") as f:
-#     f.write('Training...\n')
-# print('Training...')
-#
-# with open(path_to_logger, "a") as f:
-#     f.write('Generating synthetic data...\n')
-# print('Generating synthetic data...')
-#
-# with open(path_to_logger, "a") as f:
-#     f.write('Done training.\n')
-# print('Done training.')
-#
-# with open(path_to_logger, "a") as f:
-#     f.write('Data generated\n')
-# print('Data generated')
+def log_gen_msg(path_to_logger, msg):
+    with open(path_to_logger, "a") as f:
+        msg = msg + "\n"
+        f.write(msg)
+    print(msg)
 
-# open(path_to_logger, "w").close()
+def clean_logger(path_to_logger):
+    open(path_to_logger, "w").close()
 
 
 def gen_data_GAN(data, 
@@ -54,6 +42,7 @@ def gen_data_GAN(data,
                  num_epochs = 200,
                  batch_size = 128,
                  out_dir = 'models/'):
+    path_to_logger = os.path.join(LOG_PATH, LOG_FILE)
     #data = data_utils.load_training_data(data_dir,data_type)
     igan_data.model_utils.reset_session_and_model()
     with tf.Session() as sess:
@@ -71,17 +60,21 @@ def gen_data_GAN(data,
         test_model = igan_data.model.MDNModel(test_config, False)
         sess.run(tf.global_variables_initializer())
         saver = tf.train.Saver()
-        print('Training current model...')
+        text_msg = 'Training current model...'
+        log_gen_msg(path_to_logger, text_msg)
         for idx in range(num_epochs):
             epoch_loss = train_model.train_for_epoch(sess, loader)
-            print('Epoch: ',idx, ' Loss: ', epoch_loss)
+            text_msg = 'Epoch: ' + str(idx) + ' Loss: ' + str(epoch_loss)
+            log_gen_msg(path_to_logger, text_msg)
             if (idx+1) % model_chkpoint== 0:
                 saver.save(sess, out_dir + 'GAN_models.ckpt', global_step=idx)
-        print('Done training current model.')
+        text_msg = 'Done training current model.'
+        log_gen_msg(path_to_logger, text_msg)
     ckpt_path = out_dir + 'GAN_models.ckpt-'+str(num_epochs-model_chkpoint)
     igan_data.model_utils.reset_session_and_model()
     fake_list = []
-    print('Generating synthetic data for current class...')
+    text_msg = 'Generating synthetic data for current class...'
+    log_gen_msg(path_to_logger, text_msg)
     with tf.Session() as sess:
         test_config = igan_data.model.ModelConfig()
         test_config.num_layers = 1
@@ -100,7 +93,8 @@ def gen_data_GAN(data,
             fake_data = test_model.predict(sess, data.shape[1])
             fake_list.append(fake_data)
     fake_list = np.array(fake_list) #returns num_seq x data.shape[0] numpy array
-    print('Data generated for current class')
+    text_msg = 'Data generated for current class'
+    log_gen_msg(path_to_logger, text_msg)
     shutil.rmtree('models/')
     os.mkdir('models/')
     return fake_list
@@ -113,6 +107,9 @@ def gen_data_multiclass(data,
                         data_type='.mat',
                         model_chkpoint=5,
                         num_epochs=150):
+    path_to_logger = os.path.join(LOG_PATH, LOG_FILE)
+    clean_logger(path_to_logger)
+
     _, indices = np.unique(classL, return_index=True)
     indices = np.append(indices,data.shape[0])
     syndata_list =  np.empty((0,data.shape[1]))
@@ -122,7 +119,8 @@ def gen_data_multiclass(data,
             batch_size = 128
         else:
             batch_size = indices[i+1]-indices[i]
-        print("Training for class ", classL[indices[i]])
+        text_msg = "Training for class " + str(classL[indices[i]])
+        log_gen_msg(path_to_logger, text_msg)
         synthesized_data = gen_data_GAN(data = data[indices[i]:indices[i+1],:],
                      data_type = data_type,
                      num_seq = num_seq[i],
@@ -132,6 +130,8 @@ def gen_data_multiclass(data,
                      out_dir = 'models/')
         syndata_list = np.concatenate((syndata_list,synthesized_data))
         class_list.append(np.repeat(classL[indices[i]],num_seq[i]))
-    print("Data generation for all classes complete")
+    text_msg = "Data generation for all classes complete"
+    log_gen_msg(path_to_logger, text_msg)
+    clean_logger(path_to_logger)
     class_list = np.concatenate(class_list).ravel()
     return syndata_list, class_list, num_classes

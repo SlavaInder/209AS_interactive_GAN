@@ -213,31 +213,56 @@
                         Statistics
                     </div>
                 </div>
+
+                {% if UI.original_select == "select-button" %}
+                    {% set jin_novelty = UI.current_orig %}
+                    {% set jin_diversity = UI.current_orig_class %}
+                    {% set jin_loss = "-" %}
+                    {% set jin_RMSE = "-" %}
+                    {% set jin_miscl = "-" %}
+
+                    {% set jin_t_l_source = "/orig_clsdist_plot.png" %}
+                    {% set jin_t_r_source = "/orig_dsdiv_plot.png" %}
+                    {% set jin_b_l_source = "/orig_dsdist_plot.png" %}
+                    {% set jin_b_r_source = "/orig_dsnvlt_plot.png" %}
+                {% else %}
+                    {% set jin_novelty = UI.current_orig %}
+                    {% set jin_diversity = UI.current_orig_class %}
+                    {% set jin_loss = UI.current_orig %}
+                    {% set jin_RMSE = UI.current_orig_class %}
+                    {% set jin_miscl = UI.current_orig %}
+
+                    {% set jin_t_l_source = "/gen_clsdist_plot.png" %}
+                    {% set jin_t_r_source = "/gen_dsdiv_plot.png" %}
+                    {% set jin_b_l_source = "/gen_dsdist_plot.png" %}
+                    {% set jin_b_r_source = "/gen_dsnvlt_plot.png" %}
+                {% endif %}
+
                 <div class="entry-1-wrapper-outer">
                     <div class="entry-1-wrapper-inner">
                         <div class="entry-1">
-                            RMSE
+                            Novelty score
                         </div>
                     </div>
                 </div>
                 <div class="entry-2-wrapper-outer">
                     <div class="entry-2-wrapper-inner">
                         <div class="entry-2">
-                            ???
+                            {{ jin_novelty }}
                         </div>
                     </div>
                 </div>
                 <div class="entry-3-wrapper-outer">
                     <div class="entry-3-wrapper-inner">
                         <div class="entry-3">
-                            miscl. rate
+                            Diversity score
                         </div>
                     </div>
                 </div>
                 <div class="entry-4-wrapper-outer">
                     <div class="entry-4-wrapper-inner">
                         <div class="entry-4">
-                            ???
+                            {{ jin_diversity }}
                         </div>
                     </div>
                 </div>
@@ -251,49 +276,49 @@
                 <div class="entry-6-wrapper-outer">
                     <div class="entry-6-wrapper-inner">
                         <div class="entry-6">
-                            ???
+                            {{ jin_loss }}
                         </div>
                     </div>
                 </div>
                 <div class="entry-7-wrapper-outer">
                     <div class="entry-7-wrapper-inner">
                         <div class="entry-7">
-                            Novelty score
+                            RMSE
                         </div>
                     </div>
                 </div>
                 <div class="entry-8-wrapper-outer">
                     <div class="entry-8-wrapper-inner">
                         <div class="entry-8">
-                            ???
+                            {{ jin_RMSE }}
                         </div>
                     </div>
                 </div>
                 <div class="entry-9-wrapper-outer">
                     <div class="entry-9-wrapper-inner">
                         <div class="entry-9">
-                            Diversity score
+                            miscl. rate
                         </div>
                     </div>
                 </div>
                 <div class="entry-10-wrapper-outer">
                     <div class="entry-10-wrapper-inner">
                         <div class="entry-10">
-                            ???
+                            {{ jin_miscl }}
                         </div>
                     </div>
                 </div>
                 <div class="t-l-plot">
-                    <img src="/plot.png" alt="my plot">
+                    <img src= {{ jin_t_l_source }} alt="my plot">
                 </div>
                 <div class="t-r-plot">
-                    <img src="/plot.png" alt="my plot">
+                    <img src= {{ jin_t_r_source }} alt="my plot">
                 </div>
                 <div class="b-l-plot">
-                    <img src="/plot.png" alt="my plot">
+                    <img src= {{ jin_b_l_source }} alt="my plot">
                 </div>
                 <div class="b-r-plot">
-                    <img src="/plot.png" alt="my plot">
+                    <img src= {{ jin_b_r_source }} alt="my plot">
                 </div>
             </div>
         </div>
@@ -307,21 +332,6 @@
         </div>
 
     </div>
-
-
-
-
-
-
-
-
-        <div name="plot_div" class="after">
-            <div class="row_content">
-                <!--
-                <img src="/plot.png" alt="my plot">
-                -->
-            </div>
-        </div>
 
 </body>
 </html>
