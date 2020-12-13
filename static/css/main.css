@@ -576,17 +576,17 @@ input[type="file"] {
     grid-area: buttons;
     display: grid;
     grid-template-areas:
-        'left mid right';
+        'left right right';
     grid-template-columns: 33% 34% 33%;
 }
 
 .left-right-switch {
-    grid-area: left;
+    grid-area: right;
     margin:auto;
 }
 
 .orig-syn-switch {
-    grid-area: mid;
+    grid-area: left;
     display: grid;
     grid-template-areas:
         'left right';

@@ -70,8 +70,8 @@ manager = igan_server.HandlerManager([load_handler,
                                       json_handler])
 
 # init data dictionary
-data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)), 'orig_class': [''],
-        'gen_x': np.zeros((1, 1)), 'gen_y': np.zeros((1, 1)), 'gen_class': [''],
+data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)), 'orig_class': ['0'],
+        'gen_x': np.zeros((1, 1)), 'gen_y': np.zeros((1, 1)), 'gen_class': ['0'],
         "ref_x": [], "ref_y": [],
         "start": 0, "end": 0,
         "current_orig": 0,
@@ -112,16 +112,20 @@ def main_window():
             data['gen_y'] = updates["gen_data_vals"]
         if "gen_data_timestamps" in updates:
             data['gen_x'] = updates["gen_data_timestamps"]
+        if "gen_data_classes" in updates:
+            data['gen_class'] = updates["gen_data_classes"]
         if "change_to_orig" in updates:
             data["current_orig"] = updates["change_to_orig"]
             data["display"] = "orig"
             ui["current_orig"] = str(updates["change_to_orig"])
+            ui["current_orig_class"] = str(data["orig_class"][data["current_orig"]])
             ui["original_select"] = "select-button"
             ui["synthesized_select"] = "unselect-button"
         if "change_to_gen" in updates:
             data["current_gen"] = updates["change_to_gen"]
             data["display"] = "gen"
             ui["current_gen"] = str(updates["change_to_gen"])
+            ui["current_gen_class"] = str(data["gen_class"][data["current_gen"]])
             ui["original_select"] = "unselect-button"
             ui["synthesized_select"] = "select-button"
         if "updated_sample" in updates:
@@ -130,35 +134,32 @@ def main_window():
             if data["display"] == "orig":
                 if not data["current_orig"] + 1 < data["orig_y"].shape[0]:
                     data["current_orig"] = 0
-                    ui["current_orig"] = str(data["current_orig"])
                 else:
                     data["current_orig"] += 1
-                    ui["current_orig"] = str(data["current_orig"])
+                ui["current_orig"] = str(data["current_orig"])
+                ui["current_orig_class"] = str(data["orig_class"][data["current_orig"]])
             else:
-                print(data["gen_y"].shape)
-                print(data["current_gen"])
-                print(data["current_gen"] + 1 < data["gen_y"].shape[0])
                 if not data["current_gen"] + 1 < data["gen_y"].shape[0]:
                     data["current_gen"] = 0
-                    ui["current_gen"] = str(data["current_gen"])
                 else:
                     data["current_gen"] += 1
-                    ui["current_gen"] = str(data["current_gen"])
+                ui["current_gen"] = str(data["current_gen"])
+                ui["current_gen_class"] = str(data["gen_class"][data["current_gen"]])
         if "prev" in updates:
             if data["display"] == "orig":
                 if data["current_orig"] - 1 < 0:
                     data["current_orig"] = data["orig_y"].shape[0] - 1
-                    ui["current_orig"] = str(data["current_orig"])
                 else:
                     data["current_orig"] -= 1
-                    ui["current_orig"] = str(data["current_orig"])
+                ui["current_orig"] = str(data["current_orig"])
+                ui["current_orig_class"] = str(data["orig_class"][data["current_orig"]])
             else:
                 if data["current_gen"] - 1 < 0:
                     data["current_gen"] = data["gen_y"].shape[0] - 1
-                    ui["current_gen"] = str(data["current_gen"])
                 else:
                     data["current_gen"] -= 1
-                    ui["current_gen"] = str(data["current_gen"])
+                ui["current_gen"] = str(data["current_gen"])
+                ui["current_gen_class"] = str(data["gen_class"][data["current_gen"]])
 
         if "ref_points_x" in updates:
             data["ref_x"] = updates["ref_points_x"]
@@ -275,20 +276,20 @@ def create_chart():
     if ui["original_select"] == "select-button":
         p = figure(title="original data", x_axis_label='x', y_axis_label='y', tools=tools, sizing_mode="stretch_both")
         # add a line renderer with legend and line thickness
-        p.line(x='orig_x', y='orig_y', source=source, legend_label="Temp.", line_width=2)
+        p.line(x='orig_x', y='orig_y', source=source, legend_label="Temp.", line_width=2, color="crimson")
         # add a circle renderer with a size, color, and alpha
-        p.circle(x='orig_x', y='orig_y', source=source, size=3, color="navy", alpha=0.5)
+        p.circle(x='orig_x', y='orig_y', source=source, size=3, alpha=0.5, color="darkred")
     else:
         p = figure(title="genreated data", x_axis_label='x', y_axis_label='y', tools=tools, sizing_mode="stretch_both")
         # add a line renderer with legend and line thickness
-        p.line(x='gen_x', y='gen_y', source=source, legend_label="Temp.", line_width=2)
+        p.line(x='gen_x', y='gen_y', source=source, legend_label="Temp.", line_width=2, color="crimson")
         # add a circle renderer with a size, color, and alpha
-        p.circle(x='gen_x', y='gen_y', source=source, size=3, color="navy", alpha=0.5)
+        p.circle(x='gen_x', y='gen_y', source=source, size=3, alpha=0.5, color="darkred")
 
     # if the genreated data is currently considered, add box select and point draw tools
     if ui["synthesized_select"] == "select-button":
         # create a rendering tool for additional points
-        r1 = p.circle(x='gen_x', y='gen_y', size=3, color="red", source=added_points_source)
+        r1 = p.circle(x='gen_x', y='gen_y', size=3, color="purple", source=added_points_source)
         draw_tool = PointDrawTool(renderers=[r1])
         p.add_tools(draw_tool)
         p.add_tools(BoxSelectTool(dimensions="width"))
@@ -299,6 +300,9 @@ def create_chart():
         var inds = cb_obj.indices;
         // copy data
         var d = source.data;
+        // update text field
+        var output = document.getElementById('points_select');
+        output.value = d['gen_x'][inds[0]].toString() + "-" + d['gen_x'][inds[inds.length-1]].toString();
         // send data
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "http://127.0.0.1:5000/", true);
@@ -308,12 +312,18 @@ def create_chart():
             end: d['gen_x'][inds[inds.length-1]]
         }));
         console.log(xhr.response);
-        console.log("!!!!!");
         """)
 
         add_point_callback = CustomJS(args={}, code="""
         // copy data
         var d = cb_obj.data;
+        // update status string
+        var output = document.getElementById('points_ref');
+        var text = "";
+        for (var i = 0; i < d['gen_y'].length; i++) {
+            text += "(" + d['gen_x'][i].toFixed(0).toString() + ", " + d['gen_y'][i].toFixed(0).toString() + "), ";
+        }
+        output.value = text;
         // send data
         var xhr = new XMLHttpRequest();
         xhr.open("POST", "http://127.0.0.1:5000/", true);

@@ -96,7 +96,7 @@
                     </div>
                     <div class="batch-input-wrapper">
                         <div class="batch-input">
-                            <input type="text" name="batch" class="corrector-input-text-field" value="5"/>
+                            <input type="text" name="batch" class="corrector-input-text-field" value="128"/>
                         </div>
                     </div>
                     <div class="iterations-text-wrapper">
@@ -106,7 +106,7 @@
                     </div>
                     <div class="iterations-input-wrapper">
                         <div class="iterations-input">
-                            <input type="text" name="batch" class="corrector-input-text-field" value="10"/>
+                            <input type="text" name="iterations" class="corrector-input-text-field" value="10000"/>
                         </div>
                     </div>
                     <div class="range-text-wrapper">
@@ -117,7 +117,7 @@
                     <div class="range-input-wrapper">
                         <div class="range-input">
                             {% set range = UI.start + '-' + UI.end  %}
-                            <input type="text" name="range" class="corrector-input-text-field" value= {{ range }} readonly />
+                            <input type="text" id="points_select" name="range" class="corrector-input-text-field" value= {{ range }} readonly />
                         </div>
                     </div>
                     <div class="reference-text-wrapper">
@@ -127,7 +127,7 @@
                     </div>
                     <div class="reference-input-wrapper">
                         <div class="reference-input">
-                            <input type="text" name="reference_points" class="corrector-input-text-field" readonly/>
+                            <input type="text" id="points_ref" name="reference_points" class="corrector-input-text-field" readonly/>
                         </div>
                     </div>
                     <div class="impute-button-wrapper">
@@ -166,14 +166,16 @@
             <div class="interactive-display">
                     <form name="selector_form" class="interactive-display-buttons" action="" method="post">
                         {% if UI.original_select == "select-button" %}
-                            {% set jin_currntn_sample = UI.current_orig %}
+                            {% set jin_current_sample = UI.current_orig %}
+                            {% set jin_current_class = UI.current_orig_class %}
                         {% else %}
-                            {% set jin_currntn_sample = UI.current_gen %}
+                            {% set jin_current_sample = UI.current_gen %}
+                            {% set jin_current_class = UI.current_gen_class %}
                         {% endif %}
 
                         <div class="left-right-switch">
                             <input type="submit" name="rotate_button" value="<<<" class="rotate_button">
-                            sample {{ jin_currntn_sample }}
+                            sample {{ jin_current_sample }}; class {{ jin_current_class }}
                             <input type="submit" name="rotate_button" value=">>>" class="rotate_button">
                         </div>
 
@@ -185,13 +187,13 @@
                                 <input type="submit" class= {{ UI.synthesized_select }} name="submit_button" value="synthesized">
                             </div>
                         </div>
-
+                        <!--
                         <div class="class-switch">
                             <input type="submit" name="change_class_button" value="<<<" class="rotate_button">
-                            class {{ jin_currntn_sample }}
+                            class {{ jin_current_sample }}
                             <input type="submit" name="change_class_button" value=">>>" class="rotate_button">
                         </div>
-
+                        -->
                     </form>
 
                 <div class ="interactive-display-plot">

@@ -111,23 +111,18 @@ class ImputeDataFormHandler(FormHandler):
                 end_indx = int(data_pack['data_dict']["end"])
                 if start_indx < 0: start_indx = 0
                 if end_indx > inp_data.shape[0]: end_indx = inp_data.shape[0]
-                print("start_indx = ", start_indx)
-                print("end_indx = ", end_indx)
                 # replace all values deleted by the user with NaNs
                 for i in range(start_indx, end_indx):
                     inp_data[i] = np.NaN
                 # replace missing data with specified reference points
                 ref_x = data_pack['data_dict']["ref_x"]
                 ref_y = data_pack['data_dict']["ref_y"]
-                print("ref_x = ", ref_x)
-                print("ref_y = ", ref_y)
                 for j in range(len(ref_x)):
                     ref_x[j], ref_y[j] = int(ref_x[j]), float(ref_y[j])
                     inp_data[ref_x[j]] = data_pack['data_dict']["ref_y"][j]
 
-                print("inp_data shape ", inp_data.shape)
-                print("inp_data= ", inp_data)
-
+                iterations = int(request.form['iterations'])
+                batch = int(request.form['batch'])
                 imputed_data = igan_data.impute_data(orig_data=data_pack['data_dict']['orig_y'],
                                                        data_type='.mat',
                                                        inp_data=inp_data,
@@ -137,11 +132,7 @@ class ImputeDataFormHandler(FormHandler):
                                                        alpha=100,
                                                        iterations=10000)
 
-                print("imputed_data shape ", imputed_data.shape)
-                print("imputed_data ", imputed_data)
                 imputed_data = imputed_data[:, 0]
-                print("after imputed_data shape ", imputed_data.shape)
-                print("after imputed_data ", imputed_data)
                 updates = {"updated_sample": imputed_data}
                 return updates
             else:
@@ -163,17 +154,36 @@ class GenerateDataFormHandler(FormHandler):
         if self.button_name in request.form:
             # if necessary data is loaded into the pack
             if 'data_dict' in data_pack:
-                syn_data = igan_data.gen_data_GAN(data = data_pack['data_dict']['orig_y'],
-                                                  data_type= '.mat',
-                                                  num_seq=5,
-                                                  model_chkpoint=2,
-                                                  num_epochs=1,
-                                                  out_dir="models/")
+                # read string with number of samples
+                num_seq = request.form['samples']
+                # filter out brackets []
+                num_seq = num_seq[1:-1]
+                # convert to a list
+                num_seq = num_seq.split(", ")
+                # if the last element has length 0, delete it
+                if len(num_seq[-1]) == 0: num_seq.pop()
+                # if length is not equal to the number of classes, cut the array
+                if len(num_seq) > len(set(data_pack['data_dict']['orig_class'])):
+                    num_seq = num_seq[:len(set(data_pack['data_dict']['orig_class']))]
+                # convert all entries to int
+                for i in range(len(num_seq)):
+                    num_seq[i] = int(num_seq[i])
+                # read the number of epochs
+                num_epochs = int(request.form['epochs'])
+                syn_data, syn_class, _ = igan_data.gen_data.gen_data_multiclass(data_pack['data_dict']['orig_y'],
+                                                                                data_pack['data_dict']['orig_class'],
+                                                                                len(set(data_pack['data_dict']['orig_class'])),
+                                                                                num_seq,
+                                                                                data_type='.mat',
+                                                                                model_chkpoint=min(2, num_epochs),
+                                                                                num_epochs=num_epochs)
+
                 # create timestamps accordingly
                 timestamps = np.zeros_like(syn_data)
                 for i in range(syn_data.shape[0]):
                     timestamps[i, :] = np.arange(syn_data.shape[1])
                 updates = {"gen_data_vals": syn_data,
+                           "gen_data_classes": syn_class,
                            "gen_data_timestamps": timestamps,
                            "change_to_gen": 0}
                 return updates
