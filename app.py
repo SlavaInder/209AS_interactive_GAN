@@ -81,6 +81,8 @@ data = {'orig_x': np.zeros((1, 1)), 'orig_y': np.zeros((1, 1)), 'orig_class': ['
 # init dictionary for UI elements
 ui = {"original_select": "select-button",
       "synthesized_select": "unselect-button",
+      "orig_nvlt": "0", "orig_div": "0",
+      "gen_nvlt": "0", "gen_div": "0", "gen_loss": "0", "gen_RMSE": "0", "gen_miscl": "0",
       "ref_x": [],
       "ref_y": [],
       "start": "0",
@@ -105,12 +107,20 @@ def main_window():
         # manage updates
         if "orig_data_vals" in updates:
             data['orig_y'] = updates["orig_data_vals"]
+            ui["orig_nvlt"] = str(round(igan_data.data_novelty(data['orig_y'])[3], 5))
+            ui["orig_div"] = str(round(igan_data.data_diversity(data['orig_y'])[1], 5))
         if "orig_data_timestamps" in updates:
             data['orig_x'] = updates["orig_data_timestamps"]
         if "orig_data_classes" in updates:
             data['orig_class'] = updates["orig_data_classes"]
         if "gen_data_vals" in updates:
             data['gen_y'] = updates["gen_data_vals"]
+            ui["gen_nvlt"] = str(round(igan_data.data_novelty(data['gen_y'])[3], 5))
+            ui["gen_div"] = str(round(igan_data.data_diversity(data['gen_y'])[1], 5))
+            ui["gen_RMSE"] = str(round(igan_data.feat_RMSE(data["orig_y"], data["gen_y"]), 5))
+            ui["gen_miscl"] = "50"
+        if "loss" in updates:
+            ui["gen_loss"] = str(round(updates["loss"], 5))
         if "gen_data_timestamps" in updates:
             data['gen_x'] = updates["gen_data_timestamps"]
         if "gen_data_classes" in updates:

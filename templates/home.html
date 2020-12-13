@@ -215,8 +215,8 @@
                 </div>
 
                 {% if UI.original_select == "select-button" %}
-                    {% set jin_novelty = UI.current_orig %}
-                    {% set jin_diversity = UI.current_orig_class %}
+                    {% set jin_novelty = UI.orig_nvlt %}
+                    {% set jin_diversity = UI.orig_div %}
                     {% set jin_loss = "-" %}
                     {% set jin_RMSE = "-" %}
                     {% set jin_miscl = "-" %}
@@ -226,11 +226,11 @@
                     {% set jin_b_l_source = "/orig_dsdist_plot.png" %}
                     {% set jin_b_r_source = "/orig_dsnvlt_plot.png" %}
                 {% else %}
-                    {% set jin_novelty = UI.current_orig %}
-                    {% set jin_diversity = UI.current_orig_class %}
-                    {% set jin_loss = UI.current_orig %}
-                    {% set jin_RMSE = UI.current_orig_class %}
-                    {% set jin_miscl = UI.current_orig %}
+                    {% set jin_novelty = UI.gen_nvlt %}
+                    {% set jin_diversity = UI.gen_div %}
+                    {% set jin_loss = UI.gen_loss %}
+                    {% set jin_RMSE = UI.gen_RMSE %}
+                    {% set jin_miscl = UI.gen_miscl %}
 
                     {% set jin_t_l_source = "/gen_clsdist_plot.png" %}
                     {% set jin_t_r_source = "/gen_dsdiv_plot.png" %}

@@ -170,13 +170,13 @@ class GenerateDataFormHandler(FormHandler):
                     num_seq[i] = int(num_seq[i])
                 # read the number of epochs
                 num_epochs = int(request.form['epochs'])
-                syn_data, syn_class, _ = igan_data.gen_data.gen_data_multiclass(data_pack['data_dict']['orig_y'],
-                                                                                data_pack['data_dict']['orig_class'],
-                                                                                len(set(data_pack['data_dict']['orig_class'])),
-                                                                                num_seq,
-                                                                                data_type='.mat',
-                                                                                model_chkpoint=min(2, num_epochs),
-                                                                                num_epochs=num_epochs)
+                syn_data, syn_class, _, loss = igan_data.gen_data.gen_data_multiclass(data_pack['data_dict']['orig_y'],
+                                                                                      data_pack['data_dict']['orig_class'],
+                                                                                      len(set(data_pack['data_dict']['orig_class'])),
+                                                                                      num_seq,
+                                                                                      data_type='.mat',
+                                                                                      model_chkpoint=min(2, num_epochs),
+                                                                                      num_epochs=num_epochs)
 
                 # create timestamps accordingly
                 timestamps = np.zeros_like(syn_data)
@@ -185,7 +185,8 @@ class GenerateDataFormHandler(FormHandler):
                 updates = {"gen_data_vals": syn_data,
                            "gen_data_classes": syn_class,
                            "gen_data_timestamps": timestamps,
-                           "change_to_gen": 0}
+                           "change_to_gen": 0,
+                           "loss": loss}
                 return updates
             else:
                 return {}

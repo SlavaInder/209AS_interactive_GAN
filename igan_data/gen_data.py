@@ -97,7 +97,7 @@ def gen_data_GAN(data,
     log_gen_msg(path_to_logger, text_msg)
     shutil.rmtree('models/')
     os.mkdir('models/')
-    return fake_list
+    return fake_list, epoch_loss
 
 
 def gen_data_multiclass(data,
@@ -114,6 +114,7 @@ def gen_data_multiclass(data,
     indices = np.append(indices,data.shape[0])
     syndata_list =  np.empty((0,data.shape[1]))
     class_list = []
+    avg_loss = 0
     for i in range(num_classes):
         if indices[i+1]-indices[i] > 128:
             batch_size = 128
@@ -121,17 +122,19 @@ def gen_data_multiclass(data,
             batch_size = indices[i+1]-indices[i]
         text_msg = "Training for class " + str(classL[indices[i]])
         log_gen_msg(path_to_logger, text_msg)
-        synthesized_data = gen_data_GAN(data = data[indices[i]:indices[i+1],:],
+        synthesized_data, my_loss = gen_data_GAN(data = data[indices[i]:indices[i+1],:],
                      data_type = data_type,
                      num_seq = num_seq[i],
                      model_chkpoint = model_chkpoint,
                      num_epochs = num_epochs,
                      batch_size = batch_size,
                      out_dir = 'models/')
+        avg_loss += my_loss
         syndata_list = np.concatenate((syndata_list,synthesized_data))
         class_list.append(np.repeat(classL[indices[i]],num_seq[i]))
     text_msg = "Data generation for all classes complete"
     log_gen_msg(path_to_logger, text_msg)
     clean_logger(path_to_logger)
     class_list = np.concatenate(class_list).ravel()
-    return syndata_list, class_list, num_classes
+    my_loss /= num_classes
+    return syndata_list, class_list, num_classes, my_loss
