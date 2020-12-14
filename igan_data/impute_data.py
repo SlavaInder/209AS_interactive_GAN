@@ -19,6 +19,8 @@ from igan_data.utils import binary_sampler
 import random
 import os
 
+from time import sleep
+
 # hyperparameters: 1. data file (numpy) 2. data type (.mat or .csv) 3. vector to be imputed
 #4. missing data rate during training 5. batch size 6. hint rate 7. alpha 8. no. of epochs
 # more hyperparameters will be added after mid term
@@ -62,4 +64,6 @@ def impute_data(orig_data,
     imputed_data = gain_t(train_data, gain_parameters,t) #trains within seconds and returns several versions of imputed vector
     msg='Training and Imputation Complete.'
     log_imp_msg(path_to_logger, msg)
+    sleep(5)
+    imp_clean_logger(path_to_logger)
     return imputed_data/10
