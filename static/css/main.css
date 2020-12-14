@@ -673,10 +673,10 @@ input[type="file"] {
     display: grid;
     grid-template-areas:
         'left-margin   stat-header   stat-header   gap   top        top        right-margin'
-        'left-margin   stat-header   stat-header   gap   t-l-plot   t-r-plot   right-margin'
+        'left-margin   stat-header   stat-header   gap   t-l-head   t-r-head   right-margin'
         'left-margin   entry-1       entry-2       gap   t-l-plot   t-r-plot   right-margin'
         'left-margin   entry-3       entry-4       gap   t-l-plot   t-r-plot   right-margin'
-        'left-margin   entry-5       entry-6       gap   b-l-plot   b-r-plot   right-margin'
+        'left-margin   entry-5       entry-6       gap   b-l-head   b-r-head   right-margin'
         'left-margin   entry-7       entry-8       gap   b-l-plot   b-r-plot   right-margin'
         'left-margin   entry-9       entry-10      gap   b-l-plot   b-r-plot   right-margin'
         'left-margin   bot1          bot1          gap   bot2       bot2       right-margin';
@@ -920,26 +920,89 @@ input[type="file"] {
     vertical-align: middle;
 }
 
-.t-l-plot {
-    padding-top: 22%;
-    grid-area: t-l-plot;
+.t-l-head-wrapper {
+    width: 100%;
+    height: 100%;
+    display: table;
+    grid-area: t-l-head;
+    text-align: center;
 
 }
 
+.t-l-head {
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.t-l-plot {
+    padding-top: 0;
+    grid-area: t-l-plot;
+}
+
+.t-r-head-wrapper {
+    width: 100%;
+    height: 100%;
+    display: table;
+    grid-area: t-r-head;
+    text-align: center;
+
+}
+
+.t-r-head {
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 .t-r-plot {
-    padding-top: 22%;
+    padding-top: 0;
     grid-area: t-r-plot;
 
 }
 
+.b-l-head-wrapper {
+    width: 100%;
+    height: 100%;
+    display: table;
+    grid-area: b-l-head;
+    text-align: center;
+
+}
+
+.b-l-head {
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 .b-l-plot {
-    padding-top: 22%;
+    padding-top: 0;
     grid-area: b-l-plot;
 
 }
 
+.b-r-head-wrapper {
+    width: 100%;
+    height: 100%;
+    display: table;
+    grid-area: b-r-head;
+    text-align: center;
+
+}
+
+.b-r-head {
+    display: table-cell;
+    vertical-align: bottom;
+    font-size: 20px;
+    font-weight: bold;
+}
+
 .b-r-plot {
-    padding-top: 22%;
+    padding-top: 0;
     grid-area: b-r-plot;
 
 }
